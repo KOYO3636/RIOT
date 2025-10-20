@@ -6,6 +6,8 @@
  * details.
  */
 
+#pragma once
+
 /**
  * @ingroup     sys_littlefs
  * @{
@@ -21,9 +23,6 @@
  *
  */
 
-#ifndef LFS_LOG_H
-#define LFS_LOG_H
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -33,9 +32,9 @@ extern "C" {
 /**
  * @brief Private macro for routing littlefs log msgs to RIOT's log module.
  *
- * @param[in] level             log level of this log message
- * @param[in] fmt               printf style format string
- * @param[inout] ...            printf style variadic args
+ * @param[in]     level         log level of this log message
+ * @param[in]     fmt           printf style format string
+ * @param[in,out] ...           printf style variadic args
  */
 #define _LFS_LOG(level, fmt, ...)\
     LOG(level, "lfs: " fmt "%s\n", __VA_ARGS__)
@@ -70,5 +69,4 @@ extern "C" {
 
 /** @} */
 
-#endif /* LFS_LOG_H */
 /** @} */

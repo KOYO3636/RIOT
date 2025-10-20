@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    sys_tsrb Thread safe ringbuffer
  * @ingroup     sys
@@ -19,9 +21,6 @@
  *
  * @author      Kaspar Schleiser <kaspar@schleiser.de>
  */
-
-#ifndef TSRB_H
-#define TSRB_H
 
 #include <assert.h>
 #include <stddef.h>
@@ -45,14 +44,21 @@ typedef struct tsrb {
 
 /**
  * @brief Static initializer
+ *
+ * @note The size of the buffer (`sizeof(@p BUF)`) must be a power of two.
+ *
+ * @param[in] BUF       Buffer to use by tsrb.
  */
 #define TSRB_INIT(BUF) { (BUF), sizeof (BUF), 0, 0 }
 
 /**
  * @brief        Initialize a tsrb.
+ *
+ * @note The size of the buffer (@p bufsize) must be a power of two.
+ *
  * @param[out]   rb        Datum to initialize.
  * @param[in]    buffer    Buffer to use by tsrb.
- * @param[in]    bufsize   `sizeof (buffer)`, must be power of 2.
+ * @param[in]    bufsize   Size of @p buffer.
  */
 static inline void tsrb_init(tsrb_t *rb, uint8_t *buffer, unsigned bufsize)
 {
@@ -196,5 +202,4 @@ int tsrb_add(tsrb_t *rb, const uint8_t *src, size_t n);
 }
 #endif
 
-#endif /* TSRB_H */
 /** @} */

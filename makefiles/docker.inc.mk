@@ -5,7 +5,7 @@
 # When the docker image is updated, checks at
 # dist/tools/buildsystem_sanity_check/check.sh start complaining in CI, and
 # provide the latest values to verify and fill in.
-DOCKER_TESTED_IMAGE_REPO_DIGEST := 045fd7eb54ccba2d5f4c06e8619bb1d5cd20ef96da8c6d4b7c1f9127e70adfff
+DOCKER_TESTED_IMAGE_REPO_DIGEST := 21c416fbbb94a99c3d9c76341baf5a9740608b1d1af89967127c7a171248fd7b
 
 DOCKER_PULL_IDENTIFIER := docker.io/riot/riotbuild@sha256:$(DOCKER_TESTED_IMAGE_REPO_DIGEST)
 export DOCKER_IMAGE ?= $(DOCKER_PULL_IDENTIFIER)
@@ -19,14 +19,20 @@ DEPS_FOR_RUNNING_DOCKER :=
 DOCKER ?= docker
 
 # List of Docker-enabled make goals
-export DOCKER_MAKECMDGOALS_POSSIBLE = \
+DOCKER_MAKECMDGOALS_POSSIBLE := \
   all \
-  buildtest-indocker \
   scan-build \
   scan-build-analyze \
   tests-% \
   #
-export DOCKER_MAKECMDGOALS = $(filter $(DOCKER_MAKECMDGOALS_POSSIBLE),$(MAKECMDGOALS))
+
+# On native, we also can run the test in docker
+ifneq (, $(filter native%,$(BOARD)))
+  DOCKER_MAKECMDGOALS_POSSIBLE += test
+endif
+
+export DOCKER_MAKECMDGOALS_POSSIBLE
+export DOCKER_MAKECMDGOALS := $(filter $(DOCKER_MAKECMDGOALS_POSSIBLE),$(MAKECMDGOALS))
 
 # Docker creates the files .dockerinit and .dockerenv in the root directory of
 # the container, we check for the files to determine if we are inside a container.
@@ -81,6 +87,7 @@ export DOCKER_ENV_VARS += \
   RIOT_CI_BUILD \
   RIOT_VERSION \
   RIOT_VERSION_CODE \
+  RUSTFLAGS \
   SCANBUILD_ARGS \
   SCANBUILD_OUTPUTDIR \
   SIZE \
@@ -359,6 +366,19 @@ docker_run_make = \
 	-w '$(DOCKER_APPDIR)' '$2' \
 	$(MAKE) $(DOCKER_OVERRIDE_CMDLINE) $4 $1
 
+# create cargo folders
+# This prevents cargo inside docker from creating them with root permissions
+# (should they not exist), and also from re-building everything every time
+# because the .cargo inside is as ephemeral as the build container.
+DEPS_FOR_RUNNING_DOCKER += $(HOME)/.cargo/git
+DEPS_FOR_RUNNING_DOCKER += $(HOME)/.cargo/registry
+
+$(HOME)/.cargo/git:
+	$(Q)mkdir -p $@
+
+$(HOME)/.cargo/registry:
+	$(Q)mkdir -p $@
+
 # This will execute `make $(DOCKER_MAKECMDGOALS)` inside a Docker container.
 # We do not push the regular $(MAKECMDGOALS) to the container's make command in
 # order to only perform building inside the container and defer executing any
@@ -368,4 +388,6 @@ docker_run_make = \
 # hardware which may not be reachable from inside the container.
 ..in-docker-container: $(DEPS_FOR_RUNNING_DOCKER)
 	@$(COLOR_ECHO) '$(COLOR_GREEN)Launching build container using image "$(DOCKER_IMAGE)".$(COLOR_RESET)'
+	@mkdir -p $(HOME)/.cargo/git
+	@mkdir -p $(HOME)/.cargo/registry
 	$(call docker_run_make,$(DOCKER_MAKECMDGOALS),$(DOCKER_IMAGE),,$(DOCKER_MAKE_ARGS))

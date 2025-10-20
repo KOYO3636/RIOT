@@ -10,6 +10,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    net_sock_dtls    DTLS sock API
  * @ingroup     net_sock net_dtls
@@ -53,7 +55,9 @@
  *
  * ## Makefile Includes
  *
- * First, we need to [include](@ref including-modules) a module that implements
+ * First, we need to
+ * [include](https://guide.riot-os.org/advanced_tutorials/creating_application/#including-modules)
+ * a module that implements
  * this API in our applications Makefile. For example the module that
  * implements this API for [tinydtls](@ref pkg_tinydtls) is called
  * `tinydtls_sock_dtls'.
@@ -527,9 +531,6 @@
  * @author  Leandro Lanzieri <leandro.lanzieri@haw-hamburg.de>
  */
 
-#ifndef NET_SOCK_DTLS_H
-#define NET_SOCK_DTLS_H
-
 #include <assert.h>
 #include <errno.h>
 #include <stdint.h>
@@ -921,7 +922,7 @@ static inline ssize_t sock_dtls_recv_buf(sock_dtls_t *sock,
 }
 
 /**
- * @brief Encrypts and sends a message to a remote peer with non-continous payload
+ * @brief Encrypts and sends a message to a remote peer with non-continuous payload
  *
  * @param[in]   sock    DTLS sock to use
  * @param[in]   remote  DTLS session to use. A new session will be created
@@ -1055,7 +1056,7 @@ static inline ssize_t sock_dtls_send(sock_dtls_t *sock,
 }
 
 /**
- * @brief Encrypts and sends a message to a remote peer with non-continous payload
+ * @brief Encrypts and sends a message to a remote peer with non-continuous payload
  *
  * @param[in] sock      DTLS sock to use
  * @param[in] remote    DTLS session to use. A new session will be created
@@ -1124,5 +1125,4 @@ void sock_dtls_close(sock_dtls_t *sock);
 }
 #endif
 
-#endif /* NET_SOCK_DTLS_H */
 /** @} */

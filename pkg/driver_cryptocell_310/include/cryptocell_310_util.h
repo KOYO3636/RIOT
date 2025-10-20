@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @ingroup     pkg_driver_cryptocell_310
  * @{
@@ -16,15 +18,9 @@
  * @author      Lena Boeckmann <lena.boeckmann@haw-hamburg.de>
  *
  */
-#ifndef CRYPTOCELL_310_UTIL_H
-#define CRYPTOCELL_310_UTIL_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifdef CPU_NRF52
-#define CHECK_POINTER_DMA_ACCESS(p) ((unsigned int)p >= 0x20000000 ? (unsigned int)p < 0x40000000 : 0)
 #endif
 
 /**
@@ -44,6 +40,17 @@ void cryptocell_310_enable(void);
 void cryptocell_310_disable(void);
 
 /**
+ * @brief   Check whether the given data resides in RAM
+ *
+ *          Should be called on every const input that will be passed
+ *          on to the CryptoCell peripheral.
+ */
+static inline bool cryptocell_310_data_within_ram(const uint8_t* data)
+{
+    return ((int)data >= CPU_RAM_BASE && (int)data < CPU_RAM_BASE + CPU_RAM_SIZE);
+}
+
+/**
  * @brief   Enables CryptoCell module, IRQs and crypto libraries on nrf52840.
  *
  *          Must be called once before using the CryptoCell lib.
@@ -61,5 +68,4 @@ void driver_cryptocell_310_terminate(void);
 }
 #endif
 
-#endif /* CRYPTOCELL_310_UTIL_H */
 /** @} */

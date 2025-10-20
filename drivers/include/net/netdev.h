@@ -9,6 +9,8 @@
  * more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    drivers_netdev_api Netdev - Network Device Driver API
  * @ingroup     drivers_netdev
@@ -187,9 +189,6 @@
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
 
-#ifndef NET_NETDEV_H
-#define NET_NETDEV_H
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -251,7 +250,7 @@ typedef enum {
      * @brief   ACK requested but not received
      *
      * @deprecated  Issue an NETDEV_EVENT_TX_COMPLETE event instead and return
-     *              `-ECOMM` in netdev_driver_t::confirm_send. Via the `info`
+     *              `-EHOSTUNREACH` in netdev_driver_t::confirm_send. Via the `info`
      *              parameter additional details about the error can be passed
      */
     NETDEV_EVENT_TX_NOACK,
@@ -336,6 +335,7 @@ typedef enum {
     NETDEV_CDC_ECM,
     NETDEV_TINYUSB,
     NETDEV_W5500,
+    NETDEV_ESP_IEEE802154,
     /* add more if needed */
 } netdev_type_t;
 /** @} */
@@ -669,5 +669,4 @@ static inline void netdev_trigger_event_isr(netdev_t *netdev)
 }
 #endif
 
-#endif /* NET_NETDEV_H */
 /** @} */

@@ -1,10 +1,9 @@
 /*
- * Copyright (C) 2022 Christian Amsüss
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License v2.1. See the file LICENSE in the top level
- * directory for more details.
+ * SPDX-FileCopyrightText: 2022 Christian Amsüss
+ * SPDX-License-Identifier: LGPL-2.1-only
  */
+
+#pragma once
 
 /**
  * @ingroup     cpu_efm32
@@ -33,9 +32,6 @@
  *
  * @author      Christian Amsüss <chrysn@fsfe.org>
  */
-
-#ifndef GPIO_LL_ARCH_H
-#define GPIO_LL_ARCH_H
 
 #include "cpu.h"
 #include "periph_cpu.h"
@@ -203,5 +199,4 @@ static inline void * gpio_port_unpack_addr(gpio_port_t port)
 }
 #endif
 
-#endif /* GPIO_LL_ARCH_H */
 /** @} */

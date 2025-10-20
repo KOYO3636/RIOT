@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    drivers_enc28j60 ENC28J60
  * @ingroup     drivers_netdev
@@ -18,9 +20,6 @@
  *
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
-
-#ifndef ENC28J60_H
-#define ENC28J60_H
 
 #include <stdint.h>
 
@@ -67,5 +66,4 @@ void enc28j60_setup(enc28j60_t *dev, const enc28j60_params_t *params, uint8_t in
 }
 #endif
 
-#endif /* ENC28J60_H */
 /** @} */

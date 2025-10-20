@@ -28,6 +28,7 @@
 
 #include "bitarithm.h"
 #include "net/nanocoap.h"
+#include "net/nanocoap_sock.h"
 
 #define ENABLE_DEBUG 0
 #include "debug.h"
@@ -406,6 +407,56 @@ ssize_t coap_opt_get_string(coap_pkt_t *pkt, uint16_t optnum,
     return (int)(max_len - left);
 }
 
+int coap_iterate_uri_query(coap_pkt_t *pkt, void **opt_pos,
+                           char *key, size_t key_len_max,
+                           char *value, size_t value_len_max)
+{
+    int len;
+    void *key_data = coap_iterate_option(pkt, COAP_OPT_URI_QUERY,
+                                         (uint8_t **)opt_pos, &len);
+    if (!key_data) {
+        return 0; /* No key found */
+    }
+
+    const char *value_data = memchr(key_data, '=', len);
+
+    size_t key_len, value_len;
+
+    if (value_data) {
+        key_len = (uintptr_t)value_data - (uintptr_t)key_data;
+        value_data += 1;
+        value_len = len - key_len - 1;
+    } else {
+        key_len = len;
+        value_data = NULL;
+        value_len = 0;
+
+        if (value && value_len_max) {
+            value[0] = 0;
+        }
+    }
+
+    if (key_len >= key_len_max) {
+        return -E2BIG;
+    }
+    memcpy(key, key_data, key_len);
+    key[key_len] = 0;
+
+    if (!value_data) {
+        return 1; /* Key was found but no values */
+    }
+    if (!value) {
+        return 2; /* Key and values found */
+    }
+
+    if (value_len >= value_len_max) {
+        return -E2BIG;
+    }
+    memcpy(value, value_data, value_len);
+    value[value_len] = 0;
+    return 2; /* Key and values found */
+}
+
 int coap_get_blockopt(coap_pkt_t *pkt, uint16_t option, uint32_t *blknum, uint8_t *szx)
 {
     uint8_t *optpos = coap_find_option(pkt, option);
@@ -494,16 +545,54 @@ ssize_t coap_handle_req(coap_pkt_t *pkt, uint8_t *resp_buf, unsigned resp_buf_le
 {
     assert(ctx);
 
-    if (coap_get_code_class(pkt) != COAP_REQ) {
-        DEBUG("coap_handle_req(): not a request.\n");
+    if (IS_USED(MODULE_NANOCOAP_SERVER_OBSERVE) && (coap_get_type(pkt) == COAP_TYPE_RST)) {
+        nanocoap_unregister_observer_due_to_reset(coap_request_ctx_get_remote_udp(ctx),
+                                                  coap_get_id(pkt));
+    }
+
+    switch (coap_get_type(pkt)) {
+    case COAP_TYPE_CON:
+    case COAP_TYPE_NON:
+        /* could be a request ==> proceed */
+        break;
+    default:
+        DEBUG_PUTS("coap_handle_req(): ignoring RST/ACK");
         return -EBADMSG;
     }
 
-    if (pkt->hdr->code == 0) {
-        return coap_build_reply(pkt, COAP_CODE_EMPTY, resp_buf, resp_buf_len, 0);
+    if (coap_get_code_class(pkt) != COAP_REQ) {
+        DEBUG_PUTS("coap_handle_req(): not a request --> ignore");
+        return -EBADMSG;
     }
-    return coap_tree_handler(pkt, resp_buf, resp_buf_len, ctx,
-                             coap_resources, coap_resources_numof);
+
+    if (coap_get_code_raw(pkt) == COAP_CODE_EMPTY) {
+        /* we are not able to process a CON/NON message with an empty code,
+         * so we reply with a RST, unless we got a multicast message */
+        if (!sock_udp_ep_is_multicast(coap_request_ctx_get_local_udp(ctx))) {
+            return coap_build_reply(pkt, COAP_CODE_EMPTY, resp_buf, resp_buf_len, 0);
+        }
+    }
+
+    ssize_t retval = coap_tree_handler(pkt, resp_buf, resp_buf_len, ctx,
+                                       coap_resources, coap_resources_numof);
+
+    if (retval < 0) {
+        if (retval == -ECANCELED) {
+            DEBUG_PUTS("nanocoap: No-Response Option present and matching");
+            if (coap_get_type(pkt) == COAP_TYPE_CON) {
+                return coap_build_empty_ack(pkt, (void *)resp_buf);
+            }
+            return 0;
+        }
+        /* handlers were not able to process this, so we reply with a RST,
+         * unless we got a multicast message */
+        const sock_udp_ep_t *local = coap_request_ctx_get_local_udp(ctx);
+        if (!local || !sock_udp_ep_is_multicast(local)) {
+            return coap_build_reply(pkt, COAP_CODE_EMPTY, resp_buf, resp_buf_len, 0);
+        }
+    }
+
+    return retval;
 }
 
 ssize_t coap_subtree_handler(coap_pkt_t *pkt, uint8_t *buf, size_t len,
@@ -547,7 +636,7 @@ ssize_t coap_tree_handler(coap_pkt_t *pkt, uint8_t *resp_buf, unsigned resp_buf_
 
 ssize_t coap_build_reply_header(coap_pkt_t *pkt, unsigned code,
                                 void *buf, size_t len,
-                                int ct,
+                                uint16_t ct,
                                 void **payload, size_t *payload_len_max)
 {
     uint8_t *bufpos = buf;
@@ -585,10 +674,7 @@ ssize_t coap_build_reply_header(coap_pkt_t *pkt, unsigned code,
                 payload = NULL;
             }
 
-            /* no-response requested, only send empty ACK or nothing */
-            if (type != COAP_TYPE_ACK) {
-                return 0;
-            }
+            return -ECANCELED;
         }
     }
 
@@ -600,7 +686,7 @@ ssize_t coap_build_reply_header(coap_pkt_t *pkt, unsigned code,
     }
 
     if (payload) {
-        if (ct >= 0) {
+        if (ct != COAP_FORMAT_NONE) {
             bufpos += coap_put_option_ct(bufpos, 0, ct);
         }
         *bufpos++ = COAP_PAYLOAD_MARKER;
@@ -618,7 +704,7 @@ ssize_t coap_build_reply_header(coap_pkt_t *pkt, unsigned code,
 ssize_t coap_reply_simple(coap_pkt_t *pkt,
                           unsigned code,
                           uint8_t *buf, size_t len,
-                          unsigned ct,
+                          uint16_t ct,
                           const void *payload, size_t payload_len)
 {
     void *payload_start;
@@ -684,24 +770,16 @@ ssize_t coap_build_reply(coap_pkt_t *pkt, unsigned code,
 
         /* option contains bitmap of disinterest */
         if (no_response & mask) {
-            switch (coap_get_type(pkt)) {
-            case COAP_TYPE_NON:
-                /* no response and no ACK */
-                return 0;
-            default:
-                 /* There is an immediate ACK response, but it is an empty response */
-                code = COAP_CODE_EMPTY;
-                len = sizeof(coap_hdr_t);
-                tkl = 0;
-                payload_len = 0;
-                break;
-            }
+            return -ECANCELED;
         }
     }
 
     coap_build_hdr((coap_hdr_t *)rbuf, type, coap_get_token(pkt), tkl, code,
                    ntohs(pkt->hdr->id));
     len += payload_len;
+
+    /* HACK: many CoAP handlers assume that the pkt buffer is also used for the response */
+    pkt->hdr = (void *)rbuf;
 
     return len;
 }

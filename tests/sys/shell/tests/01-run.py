@@ -201,7 +201,7 @@ def check_help(child):
     # we can detect duplicates
     while len(cmds_actual) > 0:
         # parse line into command and description
-        child.expect(r"([a-z0-9_-]*)[ \t]*(.*)\r\n")
+        child.expect(r"([a-z0-9_-]*)[ \t]*([^\r\n]*)\r\n")
         cmd = child.match.group(1)
         desc = child.match.group(2)
 
@@ -246,16 +246,6 @@ def check_line_canceling(child):
     assert garbage_expected == garbage_received
 
 
-def check_erase_long_line(child, longline):
-    # FIXME: this only works on native, due to #10634 combined with socat
-    # insisting in line-buffering the terminal.
-
-    if BOARD in ['native', 'native64']:
-        longline_erased = longline + "\b"*len(longline) + "echo"
-        child.sendline(longline_erased)
-        child.expect_exact('"echo"')
-
-
 def check_control_d(child):
     # The current shell instance was initiated by shell_run_once(). The shell will exit.
     child.sendline(CONTROL_D)
@@ -264,7 +254,7 @@ def check_control_d(child):
     # The current shell instance was initiated by shell_run(). The shell will respawn
     # automatically except on native. On native, RIOT is shut down completely,
     # therefore exclude this part.
-    if BOARD not in ['native', 'native64']:
+    if BOARD not in ['native', 'native32', 'native64']:
         child.sendline(CONTROL_D)
         child.expect_exact(PROMPT)
 
@@ -283,7 +273,7 @@ def check_preempt(child):
 
 def testfunc(child):
     # avoid sending an extra empty line on native.
-    if BOARD in ['native', 'native64']:
+    if BOARD in ['native', 'native32', 'native64']:
         child.crlf = '\n'
 
     bufsize = check_and_get_bufsize(child)
@@ -295,8 +285,6 @@ def testfunc(child):
         check_line_canceling(child)
     else:
         print("skipping check_line_canceling()")
-
-    check_erase_long_line(child, longline)
 
     check_control_d(child)
 

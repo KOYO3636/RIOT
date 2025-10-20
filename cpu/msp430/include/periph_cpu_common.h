@@ -1,10 +1,9 @@
 /*
- * Copyright (C) 2015 Freie Universität Berlin
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License v2.1. See the file LICENSE in the top level
- * directory for more details.
+ * SPDX-FileCopyrightText: 2015 Freie Universität Berlin
+ * SPDX-License-Identifier: LGPL-2.1-only
  */
+
+#pragma once
 
 /**
  * @ingroup     cpu_msp430_x1xx
@@ -15,9 +14,6 @@
  *
  * @author          Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
-
-#ifndef PERIPH_CPU_COMMON_H
-#define PERIPH_CPU_COMMON_H
 
 #include <stdbool.h>
 
@@ -439,7 +435,6 @@ extern REG16 TIMER_B_IRQFLAGS;
 extern msp430_timer_t TIMER_B;
 /** @} */
 
-
 /**
  * @brief   Initialize the basic clock system to provide the main clock,
  *          the subsystem clock, and the auxiliary clock.
@@ -507,5 +502,4 @@ void msp430_clock_release(msp430_clock_t clock);
 }
 #endif
 
-#endif /* PERIPH_CPU_COMMON_H */
 /** @} */

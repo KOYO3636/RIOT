@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    drivers_motor DC Motor Driver
  * @ingroup     drivers_actuators
@@ -80,9 +82,6 @@
  *
  * @author      Gilles DOFFE <g.doffe@gmail.com>
  */
-
-#ifndef MOTOR_DRIVER_H
-#define MOTOR_DRIVER_H
 
 #include "periph/pwm.h"
 #include "periph/gpio.h"
@@ -216,8 +215,6 @@ int motor_brake(const motor_driver_t motor_driver, uint8_t motor_id);
  *
  * @param[in] motor_driver      motor driver to which motor is attached
  * @param[in] motor_id          motor ID on driver
- *
- * @return
  */
 void motor_enable(const motor_driver_t motor_driver, uint8_t motor_id);
 
@@ -226,8 +223,6 @@ void motor_enable(const motor_driver_t motor_driver, uint8_t motor_id);
  *
  * @param[in] motor_driver      motor driver to which motor is attached
  * @param[in] motor_id          motor ID on driver
- *
- * @return
  */
 void motor_disable(const motor_driver_t motor_driver, uint8_t motor_id);
 
@@ -235,5 +230,4 @@ void motor_disable(const motor_driver_t motor_driver, uint8_t motor_id);
 }
 #endif
 
-#endif /* MOTOR_DRIVER_H */
 /** @} */

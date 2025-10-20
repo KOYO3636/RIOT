@@ -34,7 +34,7 @@
 #include "test_utils/expect.h"
 #include "ztimer.h"
 
-#include "common.h"
+#include "test_common.h"
 
 #define MAX_LINE    (80)
 
@@ -128,10 +128,9 @@ static void _ev_ack_timeout_handler(event_t *event)
     mutex_unlock(&lock);
 }
 
-void ieee802154_submac_ack_timer_set(ieee802154_submac_t *submac, uint16_t us)
+void ieee802154_submac_ack_timer_set(ieee802154_submac_t *submac)
 {
-    (void)submac;
-    ztimer_set(ZTIMER_USEC, &ack_timer, us);
+    ztimer_set(ZTIMER_USEC, &ack_timer, submac->ack_timeout_us);
 }
 
 void ieee802154_submac_ack_timer_cancel(ieee802154_submac_t *submac)
@@ -194,6 +193,9 @@ static ieee802154_dev_t *_reg_callback(ieee802154_dev_type_t type, void *opaque)
         break;
     case IEEE802154_DEV_TYPE_MRF24J40:
         printf("mrf24j40");
+        break;
+    case IEEE802154_DEV_TYPE_ESP_IEEE802154:
+        printf("esp_ieee802154");
         break;
     }
 

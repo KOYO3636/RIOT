@@ -13,7 +13,7 @@ else
   endif
 endif
 
-ifeq (,$(filter stdio_%,$(USEMODULE)))
+ifneq (,$(filter stdio_default,$(USEMODULE)))
   USEMODULE += stdio_native
 endif
 
@@ -37,6 +37,7 @@ ifneq (,$(filter socket_zep,$(USEMODULE)))
   USEMODULE += ieee802154
   ifneq (,$(filter netdev,$(USEMODULE)))
     USEMODULE += netdev_ieee802154_submac
+    USEMODULE += netdev_ieee802154_submac_soft_ack
   endif
 endif
 
@@ -52,3 +53,5 @@ USEMODULE += periph
 
 # UART is needed by startup.c
 USEMODULE += periph_uart
+
+USEMODULE += fdcan

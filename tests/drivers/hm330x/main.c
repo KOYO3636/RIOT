@@ -13,39 +13,18 @@
  * @file
  * @brief       HM330X driver test application
  *
- * @author      Marian Buschsieweke <marian.buschsieweke@ovgu.de>
  * @author      Francisco Molina <francois-xavier.molinas@inria.fr>
  *
  * @}
  */
 
-#include <stdio.h>
-#include <string.h>
-
 #include "fmt.h"
+#include "fmt_table.h"
+#include "time_units.h"
 #include "ztimer.h"
-#include "timex.h"
 
 #include "hm330x.h"
 #include "hm330x_params.h"
-
-static const char spaces[16] = "                ";
-
-static void print_col_u32_dec(uint32_t number, size_t width)
-{
-    char sbuf[10]; /* "4294967295" */
-    size_t slen;
-
-    slen = fmt_u32_dec(sbuf, number);
-    if (width > slen) {
-        width -= slen;
-        while (width > sizeof(spaces)) {
-            print(spaces, sizeof(spaces));
-        }
-        print(spaces, width);
-    }
-    print(sbuf, slen);
-}
 
 int main(void)
 {
@@ -60,7 +39,6 @@ int main(void)
         print_str("Initialization failed\n");
         return 1;
     }
-
 
 #if IS_USED(MODULE_HM3302)
     print_str(

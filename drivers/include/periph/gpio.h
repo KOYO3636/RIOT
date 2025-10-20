@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    drivers_periph_gpio GPIO
  * @ingroup     drivers_periph
@@ -33,7 +35,7 @@
  * pin can thus be described by its port/pin tuple. To access a pin, the
  * @p GPIO_PIN(port, pin) macro should be used. For example: If your platform has
  * a pin PB22, it will be port=1 and pin=22. The @p GPIO_PIN macro should be
- * overridden by a MCU, to allow for efficient encoding of the the port/pin tuple.
+ * overridden by a MCU, to allow for efficient encoding of the port/pin tuple.
  * For example, on many platforms it is possible to `OR` the pin number with the
  * corresponding ports base register address. This allows for efficient decoding
  * of pin number and base address without the need of any address lookup.
@@ -71,9 +73,6 @@
  *
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  */
-
-#ifndef PERIPH_GPIO_H
-#define PERIPH_GPIO_H
 
 #include <limits.h>
 #include <stdbool.h>
@@ -200,8 +199,8 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
 /**
  * @brief   Enable pin interrupt if configured as interrupt source
  *
- *          Interrupts that would have occurred after @see gpio_irq_disable
- *          was called will be discarded.
+ * Interrupts that would have occurred after @see gpio_irq_disable
+ * was called will be discarded.
  *
  * @note    You have to add the module `periph_gpio_irq` to your project to
  *          enable this function
@@ -286,5 +285,4 @@ static inline int gpio_is_valid(gpio_t gpio)
 }
 #endif
 
-#endif /* PERIPH_GPIO_H */
 /** @} */

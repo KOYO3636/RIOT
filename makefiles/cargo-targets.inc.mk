@@ -41,10 +41,10 @@ $(CARGO_COMPILE_COMMANDS): $(BUILDDEPS)
 
 cargo-preflight: FORCE
 	@command -v cargo >/dev/null || ($(COLOR_ECHO) \
-		'$(COLOR_RED)Error: `cargo` command missing to build Rust modules.$(COLOR_RESET) Please install as described on <https://doc.riot-os.org/using-rust.html>.' ;\
+		'$(COLOR_RED)Error: `cargo` command missing to build Rust modules.$(COLOR_RESET) Please install as described on <https://guide.riot-os.org/rust_tutorials/rust_in_riot/>.' ;\
 		exit 1)
 	@command -v $${C2RUST:-c2rust} >/dev/null || ($(COLOR_ECHO) \
-		'$(COLOR_RED)Error: `'$${C2RUST:-c2rust}'` command missing to build Rust modules.$(COLOR_RESET) Please install as described on <https://doc.riot-os.org/using-rust.html>.' ;\
+		'$(COLOR_RED)Error: `'$${C2RUST:-c2rust}'` command missing to build Rust modules.$(COLOR_RESET) Please install as described on <https://guide.riot-os.org/rust_tutorials/rust_in_riot/>.' ;\
 		exit 1)
 	@command -v rustup >/dev/null || ($(COLOR_ECHO) \
 		'$(COLOR_RED)Error: `rustup` command missing.$(COLOR_RESET) While it is not essential for building Rust modules, it is the only known way to install the target core libraries (or nightly for -Zbuild-std) needed to do so. If you do think that building should be possible, please edit this file, and file an issue about building Rust modules with the installation method you are using -- later checks in this file, based on rustup, will need to be adjusted for that.' ;\
@@ -90,12 +90,6 @@ $(APPLICATION_RUST_MODULE).module: $(CARGO_LIB) FORCE
 	$(Q)cd $(BINDIR)/$(APPLICATION_RUST_MODULE)/ && $(AR) x $<
 	$(Q)# ... and move them back if any exist, careful to err if anything is duplicate
 	$(Q)rmdir $(BINDIR)/$(APPLICATION_RUST_MODULE)/bin/ || (mv -n $(BINDIR)/$(APPLICATION_RUST_MODULE)/bin/* $(BINDIR)/$(APPLICATION_RUST_MODULE)/ && rmdir $(BINDIR)/$(APPLICATION_RUST_MODULE)/bin/)
-
-# create cargo folders
-# This prevents cargo inside docker from creating them with root permissions
-# (should they not exist), and also from re-building everything every time
-# because the .cargo inside is as ephemeral as the build container.
-$(shell mkdir -p ~/.cargo/git ~/.cargo/registry)
 
 FORCE:
 .phony: FORCE

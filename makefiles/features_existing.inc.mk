@@ -44,6 +44,7 @@ FEATURES_EXISTING := \
     ble_phy_coded \
     board_bat_voltage \
     bootloader_stm32 \
+    bug_newlib_broken_stdio \
     can_rx_mailbox \
     cortexm_fpu \
     cortexm_mpu \
@@ -85,8 +86,10 @@ FEATURES_EXISTING := \
     cpu_nrf53 \
     cpu_nrf9160 \
     cpu_qn908x \
+    cpu_rp2350 \
     cpu_rpx0xx \
     cpu_sam3 \
+    cpu_sam4s \
     cpu_samd21 \
     cpu_samd5x \
     cpu_saml1x \
@@ -113,9 +116,8 @@ FEATURES_EXISTING := \
     efm32_coretemp \
     emulator_renode \
     esp_ble \
-    esp_ble_esp32 \
-    esp_ble_esp32c3 \
     esp_hw_counter \
+    esp_ieee802154 \
     esp_jtag \
     esp_now \
     esp_rmt \
@@ -126,6 +128,7 @@ FEATURES_EXISTING := \
     esp_wifi \
     esp_wifi_ap \
     esp_wifi_enterprise \
+    feather_shield \
     gecko_sdk_librail_fpu \
     gecko_sdk_librail_nonfpu \
     highlevel_stdio \
@@ -138,6 +141,7 @@ FEATURES_EXISTING := \
     no_idle_thread \
     periph_adc \
     periph_adc_continuous \
+    periph_aead_aes_128_ccm \
     periph_can \
     periph_cipher_aes_128_cbc \
     periph_cipher_chacha20 \
@@ -266,4 +270,5 @@ FEATURES_EXISTING := \
     tinyusb_device \
     vdd_lc_filter_reg0 \
     vdd_lc_filter_reg1 \
+    xiao_shield \
     #

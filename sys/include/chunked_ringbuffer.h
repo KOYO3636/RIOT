@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    sys_chunk_buffer    chunked Ringbuffer
  * @ingroup     sys
@@ -19,9 +21,6 @@
  *
  * @author  Benjamin Valentin <benjamin.valentin@ml-pa.com>
  */
-
-#ifndef CHUNKED_RINGBUFFER_H
-#define CHUNKED_RINGBUFFER_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -82,10 +81,10 @@ void crb_init(chunk_ringbuf_t *rb, void *buffer, size_t len);
  * @param[in] valid     True if the chunk is valid and should be stored
  *                      False if the current chunk should be discarded
  *
- * @return true         If the chunk could be stored in the valid chunk array
- * @return false        If there is no more space in the valid chunk array
+ * @return size of chunk if the chunk could be stored in the valid chunk array
+ * @return 0 if there is no more space in the valid chunk array
  */
-bool crb_end_chunk(chunk_ringbuf_t *rb, bool valid);
+unsigned crb_end_chunk(chunk_ringbuf_t *rb, bool valid);
 
 /**
  * @brief Start a new chunk on the ringbuffer
@@ -247,5 +246,4 @@ bool crb_chunk_foreach(chunk_ringbuf_t *rb, crb_foreach_callback_t func, void *c
 }
 #endif
 
-#endif /* CHUNKED_RINGBUFFER_H */
 /** @} */

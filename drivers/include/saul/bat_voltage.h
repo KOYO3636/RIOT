@@ -6,6 +6,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @ingroup     drivers_saul
  * @{
@@ -15,9 +17,6 @@
  *
  * @author      Martine S. Lenders <martine.lenders@tu-dresden.de>
  */
-
-#ifndef SAUL_BAT_VOLTAGE_H
-#define SAUL_BAT_VOLTAGE_H
 
 #include <stdint.h>
 
@@ -40,7 +39,7 @@ typedef struct {
      *
      * @param[in] adc_sample    The raw ADC sample.
      *
-     * @return Voltage value for phydat.
+     * @return Voltage value in 10^phydat_scale*V for phydat.
      */
     int16_t (*convert)(int32_t adc_sample);
 } saul_bat_voltage_params_t;
@@ -49,5 +48,4 @@ typedef struct {
 }
 #endif
 
-#endif /* SAUL_BAT_VOLTAGE_H */
 /** @} */

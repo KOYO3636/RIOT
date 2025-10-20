@@ -8,6 +8,8 @@
  * directory for more details.
  */
 
+#pragma once
+
 /**
  * @defgroup    net_gnrc_rpl  RPL
  * @ingroup     net_gnrc
@@ -137,9 +139,6 @@
  * @author      Martine Lenders <mlenders@inf.fu-berlin.de>
  * @author      Cenk Gündoğan <cenk.guendogan@haw-hamburg.de>
  */
-
-#ifndef NET_GNRC_RPL_H
-#define NET_GNRC_RPL_H
 
 #include <string.h>
 #include <stdint.h>
@@ -534,7 +533,7 @@ static inline bool GNRC_RPL_COUNTER_GREATER_THAN(uint8_t A, uint8_t B)
 extern kernel_pid_t gnrc_rpl_pid;
 
 /**
- * @brief @see @ref GNRC_RPL_ALL_NODES_ADDR
+ * @brief   See @ref GNRC_RPL_ALL_NODES_ADDR
  */
 extern const ipv6_addr_t ipv6_addr_all_rpl_nodes;
 
@@ -761,5 +760,4 @@ void gnrc_rpl_configure_root(gnrc_netif_t *netif, const ipv6_addr_t *dodag_id);
 }
 #endif
 
-#endif /* NET_GNRC_RPL_H */
 /** @} */
